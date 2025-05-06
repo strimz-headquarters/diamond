@@ -190,24 +190,44 @@ contract Payroll {
             }
         }
 
-        uint256 userBalance = userTokenBalances[tx.origin][token];
+        uint256 userBalance = userTokenBalances[owner][token];
         uint256 amount = getTotalAmountToDisburse();
         require(userBalance >= amount, "INSUFFICIENT_BALANCE");
 
-        userTokenBalances[tx.origin][token] -= amount;
+        userTokenBalances[owner][token] -= amount;
         contractTokenBalances[token] -= amount;
 
         IERC20 erc20 = IERC20(token);
+        uint chargeAmount;
+        bool greaterThanFree = receipients.length > 3;
         for (uint256 i = 0; i < receipients.length; i++) {
             Receipient memory receipient = receipients[i];
+            if (receipient.amount == 0) {
+                continue;
+            }
             if (receipient.valid) {
                 bool success = erc20.transfer(
                     receipient._address,
                     receipient.amount
                 );
                 require(success, "TRANSFER_FAILED");
+                if (greaterThanFree) {
+                    bool isLargeEnough = receipient.amount >= 1000; // 0.1% fee means at least 1000 to have a meaningful fee
+
+                    if (!isLargeEnough) {
+                        chargeAmount += 10;
+                        continue;
+                        // revert("Amount is too small to calculate a clean fee");
+                    }
+
+                    uint256 fee = (receipient.amount * 1) / 1000; // 0.1% fee
+                    chargeAmount += fee;
+                }
             }
         }
+
+        bool _success = erc20.transfer(address(1), chargeAmount);
+        require(_success, "TRANSFER_FAILED");
 
         last_payroll = block.timestamp;
 
@@ -291,9 +311,22 @@ contract Payroll {
     // Getter function to get the total amount to be disbursed
     function getTotalAmountToDisburse() public view returns (uint256) {
         uint256 totalAmount = 0;
+        bool greaterThanFree = receipients.length > 3;
         for (uint256 i = 0; i < receipients.length; i++) {
             if (receipients[i].valid) {
                 totalAmount += receipients[i].amount;
+                if (greaterThanFree) {
+                    bool isLargeEnough = receipients[i].amount >= 1000; // 0.1% fee means at least 1000 to have a meaningful fee
+
+                    if (!isLargeEnough) {
+                        totalAmount += 10;
+                        continue;
+                        // revert("Amount is too small to calculate a clean fee");
+                    }
+
+                    uint256 fee = (receipients[i].amount * 1) / 1000; // 0.1% fee
+                    totalAmount += fee;
+                }
             }
         }
         return totalAmount;

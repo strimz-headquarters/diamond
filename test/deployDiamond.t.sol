@@ -107,19 +107,19 @@ contract DiamondDeployer is Test, IDiamondCut {
         Receipient[] memory recipients1 = new Receipient[](2);
         recipients1[0] = Receipient({
             username: "User1",
-            amount: 10,
+            amount: 10 * 10 ** 18,
             _address: address(0x2222),
             valid: true
         });
         recipients1[1] = Receipient({
             username: "User2",
-            amount: 20,
+            amount: 20 * 10 ** 18,
             _address: address(0x3333),
             valid: true
         });
 
         // Mint tokens for alice (the owner)
-        token2.mint(alice, 2000);
+        token2.mint(alice, 2000 * 10 ** 18);
 
         // Debug log: Alice's balance after minting
         console.log("Alice's balance after minting:", token2.balanceOf(alice));
@@ -149,16 +149,16 @@ contract DiamondDeployer is Test, IDiamondCut {
 
         // Approve the Payroll contract to spend Alice's tokens
         switchSigner(alice);
-        token2.approve(info.payrollAddress, 300); // Approve tokens for transfer to the Payroll contract
+        token2.approve(info.payrollAddress, 300 * 10 ** 18); // Approve tokens for transfer to the Payroll contract
         console.log("Alice's balance after approval:", token2.balanceOf(alice));
 
         // Deposit tokens into the payroll contract
         switchSigner(alice);
-        token2.approve(address(payrollFactory), 300);
+        token2.approve(address(payrollFactory), 300 * 10 ** 18);
         switchSigner(alice);
-        token2.approve(info.payrollAddress, 300);
+        token2.approve(info.payrollAddress, 300 * 10 ** 18);
         switchSigner(alice);
-        payrollFactory.deposit(address(token2), 300, title);
+        payrollFactory.deposit(address(token2), 300 * 10 ** 18, title);
 
         console.log("Alice's balance after deposit:", token2.balanceOf(alice));
 
@@ -209,12 +209,12 @@ contract DiamondDeployer is Test, IDiamondCut {
         // Assert balances
         assertEq(
             blAfter_user1,
-            10,
+            10 * 10 ** 18,
             "User1 balance should be 10 after disbursement"
         );
         assertEq(
             blAfter_user2,
-            20,
+            20 * 10 ** 18,
             "User2 balance should be 20 after disbursement"
         );
 
