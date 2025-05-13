@@ -6,6 +6,7 @@ import "../libraries/PayrollTypes.sol";
 import "../interfaces/IPayroll.sol";
 
 contract Payroll {
+    address immutable factory;
     address owner;
     Receipient[] receipients;
     address token;
@@ -46,6 +47,7 @@ contract Payroll {
         Frequency _frequency
     ) {
         owner = tx.origin;
+        factory = msg.sender;
         for (uint256 i = 0; i < _receipients.length; i++) {
             Receipient memory _receipient = _receipients[i];
             require(_receipient._address != address(0), "INVALID_ADDRESS");
@@ -71,6 +73,7 @@ contract Payroll {
     }
 
     modifier OnlyOwner() {
+        require(msg.sender == factory, "UNAUTHORIZED");
         require(tx.origin == owner, "UNAUTHORIZED");
         _;
     }
