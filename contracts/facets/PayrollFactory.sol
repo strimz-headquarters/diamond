@@ -111,6 +111,7 @@ contract PayrollFactory {
 
     // Fixed withdraw function in PayrollFactory.sol
     function withdraw(
+        address _receipient,
         address _token,
         uint256 amount,
         string calldata _title
@@ -122,7 +123,7 @@ contract PayrollFactory {
 
         // Transfer tokens from Factory to original user
         IERC20 token = IERC20(_token);
-        require(token.transfer(msg.sender, amount), "FACTORY_TRANSFER_FAILED");
+        require(token.transfer(_receipient, amount), "FACTORY_TRANSFER_FAILED");
     }
 
     function getUserBalance(

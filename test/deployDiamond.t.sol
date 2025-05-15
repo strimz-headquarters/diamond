@@ -6,7 +6,7 @@ import "../contracts/facets/DiamondCutFacet.sol";
 import "../contracts/facets/DiamondLoupeFacet.sol";
 import "../contracts/facets/OwnershipFacet.sol";
 import "../contracts/facets/PayrollFactory.sol";
-import "../contracts/facets/Staking.sol";
+// import "../contracts/facets/Staking.sol";
 import "./MockER20.sol";
 import "forge-std/Test.sol";
 import "forge-std/console2.sol";
@@ -295,7 +295,7 @@ contract DiamondDeployer is Test, IDiamondCut {
 
         // Now withdraw some tokens
         switchSigner(alice);
-        payrollFactory.withdraw(address(token2), 50, title);
+        payrollFactory.withdraw(alice, address(token2), 50, title);
 
         // Check alice's balance after withdrawal
         uint256 aliceBalanceAfterWithdraw = token2.balanceOf(alice);
